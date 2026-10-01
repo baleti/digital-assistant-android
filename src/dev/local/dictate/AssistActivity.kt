@@ -109,6 +109,7 @@ class AssistActivity : Activity() {
         MenuItem("ic_mic", "Dictate") { startDictating() },
         MenuItem("ic_readaloud", "Read Aloud") { readAloud() },
         MenuItem("ic_clipboard", "Strip markdown (clipboard)") { stripClipboardMarkdown() },
+        MenuItem("ic_clock", "Timestamp (org-mode)") { insertOrgTimestamp() },
         MenuItem("ic_terminal", "Spawn Claude session") { showSpawnMenu() },
     )
 
@@ -349,8 +350,22 @@ class AssistActivity : Activity() {
             finish()
             return
         }
+        deliverText(text, "Dictated text")
+    }
+
+    // Inactive org-mode timestamp for "now", e.g. [2026-10-01 15:51] --
+    // inserted into the field that was focused when this overlay opened
+    // (capturedTarget), or just left on the clipboard if there's none.
+    private fun insertOrgTimestamp() {
+        val stamp = java.text.SimpleDateFormat("'['yyyy-MM-dd HH:mm']'", java.util.Locale.US).format(java.util.Date())
+        deliverText(stamp, "Org timestamp")
+    }
+
+    /** Copies `text` to the clipboard (the guaranteed fallback), closes the
+     * overlay, then tries to insert it into the captured/focused field. */
+    private fun deliverText(text: String, clipLabel: String) {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("Dictated text", text))
+        clipboard.setPrimaryClip(ClipData.newPlainText(clipLabel, text))
         // finish() FIRST, THEN insert -- confirmed live 2026-09-22 this
         // order genuinely matters and isn't just cosmetic. This overlay is
         // singleInstance/taskAffinity="" (AndroidManifest), so it always
