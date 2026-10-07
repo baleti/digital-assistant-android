@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.local.dictate">
+    package="dev.local.digitalassistant">
 
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
 
@@ -7,19 +7,19 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <application android:label="Dictate" android:allowBackup="false" android:usesCleartextTraffic="true" android:icon="@mipmap/ic_launcher">
+    <application android:label="Digital Assistant" android:allowBackup="false" android:usesCleartextTraffic="true" android:icon="@mipmap/ic_launcher">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="Dictate">
+            android:label="Digital Assistant">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Long-press-power trigger: registers Dictate as a selectable
+        <!-- Long-press-power trigger: registers Digital Assistant as a selectable
              Digital Assistant app (Settings, then Apps, then Default
              apps, then Digital assistant app), asked for explicitly
              2026-09-12 as the no-persistent-footprint gesture
@@ -53,7 +53,7 @@
         <!-- Quick Settings tile: the trigger. Tap it (from the pulled-
              down shade) anywhere in the OS to start/stop a dictation. -->
         <service
-            android:name=".DictateTileService"
+            android:name=".DictationTileService"
             android:label="Dictate"
             android:icon="@drawable/ic_mic"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
@@ -69,8 +69,8 @@
              Settings, then Accessibility: no way around that, same as
              any accessibility service on any Android device. -->
         <service
-            android:name=".DictateAccessibilityService"
-            android:label="Dictate text injection"
+            android:name=".AssistantAccessibilityService"
+            android:label="Digital Assistant text injection"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="false">
             <intent-filter>

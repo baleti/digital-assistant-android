@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import android.content.Context
 import android.graphics.Color

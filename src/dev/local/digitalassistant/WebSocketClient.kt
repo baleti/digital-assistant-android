@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream

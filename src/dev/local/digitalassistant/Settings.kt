@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import android.content.Context
 
@@ -12,12 +12,15 @@ import android.content.Context
  * credential.
  */
 object Settings {
-    private const val PREFS = "dictate_prefs"
+    private const val PREFS = "assistant_prefs"
     const val DEFAULT_PORT = 8792
+    // Same server the sibling apps default to (the newsdigest-server on the WireGuard network). Used when no
+    // host was ever set, so a reinstall/rename needs no setup.
+    const val DEFAULT_HOST = "10.10.0.2"
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    fun getHost(context: Context): String = prefs(context).getString("host", "") ?: ""
+    fun getHost(context: Context): String = prefs(context).getString("host", "")?.ifBlank { DEFAULT_HOST } ?: DEFAULT_HOST
 
     fun setHost(context: Context, host: String) {
         prefs(context).edit().putString("host", host).apply()

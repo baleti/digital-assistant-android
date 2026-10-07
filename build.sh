@@ -58,21 +58,21 @@ cd build
 "$D8" --output dex --min-api 29 $(find classes -name "*.class") "$KOTLIN_STDLIB"
 
 echo "=== assemble signed apk ==="
-cp base.apk dictate-unsigned.apk
+cp base.apk digital-assistant-unsigned.apk
 cd dex
-zip -qr ../dictate-unsigned.apk classes.dex
+zip -qr ../digital-assistant-unsigned.apk classes.dex
 cd ..
 
 if [ ! -f ../debug.keystore ]; then
   keytool -genkeypair -v -keystore ../debug.keystore \
     -storepass android -keypass android -alias androiddebugkey \
     -keyalg RSA -keysize 2048 -validity 10000 \
-    -dname "CN=Dictate Debug,O=local,C=US"
+    -dname "CN=Digital Assistant Debug,O=local,C=US"
 fi
 
 "$APKSIGNER" sign --ks ../debug.keystore --ks-pass pass:android \
   --key-pass pass:android \
-  --out dictate-signed.apk dictate-unsigned.apk
+  --out digital-assistant-signed.apk digital-assistant-unsigned.apk
 
 echo "=== BUILD_OK ==="
-ls -la dictate-signed.apk
+ls -la digital-assistant-signed.apk

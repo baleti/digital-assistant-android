@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 /**
  * Strips markdown formatting down to plain text -- ported from the old

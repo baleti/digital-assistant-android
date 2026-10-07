@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import android.Manifest
 import android.app.Activity
@@ -74,7 +74,7 @@ class AssistActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        capturedTarget = DictateAccessibilityService.instance?.captureTarget()
+        capturedTarget = AssistantAccessibilityService.instance?.captureTarget()
         window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
 
         val dp = { v: Int -> Theme.dp(this, v) }
@@ -263,12 +263,12 @@ class AssistActivity : Activity() {
         // access) need real focusability.
         window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Open the Dictate app once to grant microphone access", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Open the Digital Assistant app once to grant microphone access", Toast.LENGTH_LONG).show()
             finish()
             return
         }
         if (Settings.getHost(this).isBlank()) {
-            Toast.makeText(this, "Open the Dictate app once to set the server host", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Open the Digital Assistant app once to set the server host", Toast.LENGTH_LONG).show()
             finish()
             return
         }
@@ -303,7 +303,7 @@ class AssistActivity : Activity() {
     // finish) -- undone: "get it back to being modal... just show the
     // progress of transcribing... I imagine this would be practically
     // immediate now... this would allow us to just press stop, have very
-    // short popup and have it send immediately." DictateTranscribeService
+    // short popup and have it send immediately." DictationTranscribeService
     // (the background-queue version of this) is gone; its one useful
     // trick -- falling back to a fresh focused-node lookup if
     // capturedTarget is null -- is kept below.
@@ -341,7 +341,7 @@ class AssistActivity : Activity() {
                     finish()
                 }
             }
-        }.apply { isDaemon = true; name = "DictateTranscribe"; start() }
+        }.apply { isDaemon = true; name = "DictationTranscribe"; start() }
     }
 
     private fun finishWithResult(text: String) {
@@ -390,7 +390,7 @@ class AssistActivity : Activity() {
         var attempt = 0
         lateinit var tryInsert: () -> Unit
         tryInsert = {
-            val service = DictateAccessibilityService.instance
+            val service = AssistantAccessibilityService.instance
             val injected = when {
                 service == null -> false
                 capturedTarget != null -> service.insertInto(capturedTarget!!, text)

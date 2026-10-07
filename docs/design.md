@@ -1,6 +1,6 @@
 # Design notes
 
-Dictate is two things wearing one app: a voice-dictation tool, and a small
+Digital Assistant (formerly "Dictate", renamed 2026-10-07 to the standard Android term for this kind of app) is two things wearing one app: a voice-dictation tool, and a small
 system-wide **launcher** for one-tap custom commands, both reachable
 without any persistent on-screen element (no floating bubble, no
 permanently-visible button). The launcher is the more general of the two —
@@ -19,7 +19,7 @@ broken ("just nothing happens") for a while, and the actual cause was
 step 2 never having been done, not any code bug.
 
 1. **Build and install.** `bash build.sh` from this repo, then
-   `adb install -r build/dictate-signed.apk`. `build.sh`'s default
+   `adb install -r build/digital-assistant-signed.apk`. `build.sh`'s default
    `ANDROID_JAR`/`KOTLIN_STDLIB` paths point at this host's actual SDK
    locations (`~/.local/share/android-sdk/...`, `/usr/share/kotlin/...`)
    as of 2026-09-12 — they used to default to a stale Termux-era
@@ -28,7 +28,7 @@ step 2 never having been done, not any code bug.
    `NoSuchFileException` deep inside `d8`/`aapt2` rather than a clear
    "file not found."
 2. **Enable the accessibility service.** Settings, Accessibility,
-   "Dictate text injection", turn it on. This is the one Android
+   "Digital Assistant text injection", turn it on. This is the one Android
    genuinely does not let any app self-enable (a real OS restriction, not
    a bug here) — every accessibility service on every Android device
    needs this manual step. Nothing in the app can detect or warn you that
@@ -37,7 +37,7 @@ step 2 never having been done, not any code bug.
    `adb shell dumpsys accessibility | grep -i "enabled services"` — an
    empty `{}` means it's off. It can also be flipped on directly without
    touching the Settings UI at all:
-   `adb shell settings put secure enabled_accessibility_services dev.local.dictate/dev.local.dictate.DictateAccessibilityService`
+   `adb shell settings put secure enabled_accessibility_services dev.local.digitalassistant/dev.local.digitalassistant.AssistantAccessibilityService`
    followed by `adb shell settings put secure accessibility_enabled 1`.
    Confirmed to survive `adb install -r` reinstalls (it's tracked by
    `Settings.Secure`, not the app's own data).
@@ -154,10 +154,10 @@ android's and newsdigest-android's player controls) — asked for
 explicitly to keep this plain and simple rather than colorful platform
 emoji.
 
-## Text injection: DictateAccessibilityService
+## Text injection: AssistantAccessibilityService
 
 Dictated text always goes to the clipboard first (the guaranteed path —
-"in case something goes wrong"), then `DictateAccessibilityService`
+"in case something goes wrong"), then `AssistantAccessibilityService`
 attempts to insert it at the focused field's actual cursor position via
 `ACTION_SET_TEXT` (splicing into the existing text/selection, not a blind
 overwrite), falling back to `ACTION_PASTE` if the target view doesn't
@@ -208,8 +208,8 @@ beyond the clipboard-only fallback below. This is easy to forget and
 produces zero errors when skipped (see the Setup checklist at the top of
 this doc) — check `adb shell dumpsys accessibility | grep -i "enabled
 services"` if dictation ever seems to silently do nothing.
-`DictateTileService`/`AssistActivity` both check
-`DictateAccessibilityService.instance` before relying on it and fall back
+`DictationTileService`/`AssistActivity` both check
+`AssistantAccessibilityService.instance` before relying on it and fall back
 to "it's on your clipboard" if it's null (not enabled) or the focused
 field simply refuses the action.
 
@@ -288,7 +288,7 @@ short fixed delay before sending the broadcast is enough.
 
 ## Quick Settings tile
 
-`DictateTileService` is the original, still-present trigger from before
+`DictationTileService` is the original, still-present trigger from before
 the assist-gesture path existed — tap the tile from the pulled-down
 shade to start/stop recording directly, no menu. Kept as an alternative
 for anyone who prefers a tile over the gesture; the gesture-based

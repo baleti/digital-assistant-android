@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import org.json.JSONObject
 import java.net.HttpURLConnection

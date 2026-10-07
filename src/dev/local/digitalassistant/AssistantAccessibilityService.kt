@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import android.accessibilityservice.AccessibilityService
 import android.os.Bundle
@@ -11,14 +11,14 @@ import android.view.accessibility.AccessibilityNodeInfo
  * foreground app, system-wide -- not tied to any one app's own text
  * box. Must be enabled by hand in Settings > Accessibility (required for
  * every accessibility service on every Android device, no way around
- * it); DictateTileService checks `instance` before relying on it and
+ * it); DictationTileService checks `instance` before relying on it and
  * falls back to "it's on your clipboard, paste it in" if this hasn't
  * been enabled, or if the focused field refuses the injection (some
  * password fields and custom text renderers do).
  */
-class DictateAccessibilityService : AccessibilityService() {
+class AssistantAccessibilityService : AccessibilityService() {
     companion object {
-        @Volatile var instance: DictateAccessibilityService? = null
+        @Volatile var instance: AssistantAccessibilityService? = null
     }
 
     override fun onServiceConnected() {
@@ -40,12 +40,12 @@ class DictateAccessibilityService : AccessibilityService() {
      * background"). AssistActivity calls this the instant "stop" is
      * tapped, while its own overlay is still up (so findFocusedEditable's
      * own-package skip still correctly excludes it), then hands the
-     * result to DictateTranscribeService instead of re-discovering focus
+     * result to DictationTranscribeService instead of re-discovering focus
      * once transcription finishes -- by then the user may have switched
      * away entirely, and a fresh lookup at that point would target
      * whatever's now on screen instead of what was actually intended. */
     fun captureTarget(): AccessibilityNodeInfo? = findFocusedEditable().also {
-        Log.d("DictateInsert", "captureTarget: found=${it != null} pkg=${it?.packageName} editable=${it?.isEditable}")
+        Log.d("AssistantInsert", "captureTarget: found=${it != null} pkg=${it?.packageName} editable=${it?.isEditable}")
     }
 
     /** Inserts `text` at the currently-focused field's current cursor
@@ -69,7 +69,7 @@ class DictateAccessibilityService : AccessibilityService() {
     fun insertInto(node: AccessibilityNodeInfo, text: String): Boolean {
         val expectedPkg = node.packageName
         val refreshOk = node.refresh()
-        Log.d("DictateInsert", "insertInto: refresh=$refreshOk")
+        Log.d("AssistantInsert", "insertInto: refresh=$refreshOk")
         val focused = if (refreshOk) node else {
             // A fresh lookup here means the captured node itself is gone
             // (its window was torn down), NOT just "went to the
@@ -89,7 +89,7 @@ class DictateAccessibilityService : AccessibilityService() {
             // through since staying inside the expected app is the whole
             // point of the check.
             //
-            // activePkg == our OWN package (dev.local.dictate) must NOT
+            // activePkg == our OWN package (dev.local.digitalassistant) must NOT
             // count as "switched apps" -- confirmed live 2026-09-22:
             // rootInActiveWindow still reports THIS app's own AssistActivity
             // overlay (still showing "Transcribing...") at the moment this
@@ -102,25 +102,25 @@ class DictateAccessibilityService : AccessibilityService() {
             // and player-bar scrubber keep mutating the window and
             // invalidate the captured node handle -- confirmed via logcat:
             // "insertInto: refresh=false" immediately followed by "active
-            // app changed (dev.local.claudeagents -> dev.local.dictate)").
+            // app changed (dev.local.claudeagents -> dev.local.digitalassistant)").
             // Excluding our own package here lets that case fall through to
             // the fresh findFocusedEditable() lookup below instead of
             // refusing outright.
             val activePkg = rootInActiveWindow?.packageName
             if (expectedPkg != null && activePkg != null && activePkg != expectedPkg && activePkg != packageName) {
-                Log.d("DictateInsert", "insertInto: active app changed ($expectedPkg -> $activePkg), refusing cross-app insert")
+                Log.d("AssistantInsert", "insertInto: active app changed ($expectedPkg -> $activePkg), refusing cross-app insert")
                 return false
             }
             val fresh = findFocusedEditable()
-            Log.d("DictateInsert", "insertInto: refresh failed, fresh lookup found=${fresh != null}")
+            Log.d("AssistantInsert", "insertInto: refresh failed, fresh lookup found=${fresh != null}")
             if (fresh != null && fresh.packageName != expectedPkg) {
-                Log.d("DictateInsert", "insertInto: fresh match is a different app ($expectedPkg -> ${fresh.packageName}), refusing")
+                Log.d("AssistantInsert", "insertInto: fresh match is a different app ($expectedPkg -> ${fresh.packageName}), refusing")
                 return false
             }
             fresh ?: return false
         }
         if (!focused.isEditable) {
-            Log.d("DictateInsert", "insertInto: node not editable, pkg=${focused.packageName}")
+            Log.d("AssistantInsert", "insertInto: node not editable, pkg=${focused.packageName}")
             return false
         }
         // Some fields (confirmed live 2026-09-12 against Vanadium's own
@@ -140,7 +140,7 @@ class DictateAccessibilityService : AccessibilityService() {
         val setArgs = Bundle()
         setArgs.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, newText)
         val ok = focused.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, setArgs)
-        Log.d("DictateInsert", "insertInto: ACTION_SET_TEXT ok=$ok pkg=${focused.packageName}")
+        Log.d("AssistantInsert", "insertInto: ACTION_SET_TEXT ok=$ok pkg=${focused.packageName}")
         if (ok) {
             // Leaves the cursor right after the inserted text, not at the
             // very end of the field -- matches where typing it normally
@@ -161,7 +161,7 @@ class DictateAccessibilityService : AccessibilityService() {
         // guaranteed fallback path), so this just triggers the same
         // "paste" a long-press context menu would.
         val pasted = focused.performAction(AccessibilityNodeInfo.ACTION_PASTE)
-        Log.d("DictateInsert", "insertInto: ACTION_PASTE pasted=$pasted")
+        Log.d("AssistantInsert", "insertInto: ACTION_PASTE pasted=$pasted")
         if (pasted) maybeAutoSend(focused)
         return pasted
     }

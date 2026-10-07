@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import android.Manifest
 import android.app.Activity
@@ -17,8 +17,8 @@ import android.widget.TextView
 
 /**
  * Onboarding + settings, not a dictation UI of its own -- the actual
- * dictation happens system-wide via DictateTileService (the trigger) and
- * DictateAccessibilityService (the injector). This screen exists to
+ * dictation happens system-wide via DictationTileService (the trigger) and
+ * AssistantAccessibilityService (the injector). This screen exists to
  * grant RECORD_AUDIO once, configure the shared server's host/port, and
  * walk through the two manual steps Android requires for those (adding
  * the Quick Settings tile, enabling the Accessibility Service) -- neither
@@ -56,7 +56,7 @@ class MainActivity : Activity() {
         }
 
         root.addView(TextView(this).apply {
-            text = "Dictate"
+            text = "Digital Assistant"
             textSize = 22f
             setTextColor(Theme.onBackground)
         })
@@ -133,7 +133,7 @@ class MainActivity : Activity() {
         // status line the user checks right after flipping the toggle in
         // system Settings and coming back here, which is the only time
         // it actually matters.
-        accessibilityStatus.text = if (DictateAccessibilityService.instance != null) {
+        accessibilityStatus.text = if (AssistantAccessibilityService.instance != null) {
             "Text injection: enabled"
         } else {
             "Text injection: not enabled yet (clipboard-only until it is)"

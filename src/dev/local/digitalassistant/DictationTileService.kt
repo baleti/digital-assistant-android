@@ -1,4 +1,4 @@
-package dev.local.dictate
+package dev.local.digitalassistant
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -15,11 +15,11 @@ import android.widget.Toast
  * from anywhere in the OS, to start/stop a dictation. Text always goes
  * to the clipboard first (the guaranteed path -- asked for explicitly:
  * "just to be safe also put that into clipboard in case something goes
- * wrong"), then DictateAccessibilityService is asked to insert it into
+ * wrong"), then AssistantAccessibilityService is asked to insert it into
  * whatever's actually focused, if that service is enabled and the
  * focused field accepts it.
  */
-class DictateTileService : TileService() {
+class DictationTileService : TileService() {
     private val audioRecorder = AudioRecorder()
     @Volatile private var transcribing = false
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -32,7 +32,7 @@ class DictateTileService : TileService() {
             return
         }
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            toast("Open the Dictate app once to grant microphone access")
+            toast("Open the Digital Assistant app once to grant microphone access")
             return
         }
         audioRecorder.start()
@@ -63,7 +63,7 @@ class DictateTileService : TileService() {
                     }
                     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     clipboard.setPrimaryClip(ClipData.newPlainText("Dictated text", text))
-                    val injected = DictateAccessibilityService.instance?.insertText(text) ?: false
+                    val injected = AssistantAccessibilityService.instance?.insertText(text) ?: false
                     toast(if (injected) "Inserted (and copied)" else "Copied to clipboard - paste it in")
                 }
             } catch (e: Exception) {
@@ -73,7 +73,7 @@ class DictateTileService : TileService() {
                     toast("Transcription failed: ${e.message}")
                 }
             }
-        }.apply { isDaemon = true; name = "DictateTranscribe"; start() }
+        }.apply { isDaemon = true; name = "DictationTranscribe"; start() }
     }
 
     private fun setTile(state: Int, label: String) {
