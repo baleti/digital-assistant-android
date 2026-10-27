@@ -107,7 +107,6 @@ class AssistActivity : Activity() {
 
     private val actions: List<MenuItem> = listOf(
         MenuItem("ic_mic", "Dictate") { startDictating() },
-        MenuItem("ic_readaloud", "Read Aloud") { readAloud() },
         MenuItem("ic_clipboard", "Strip markdown (clipboard)") { stripClipboardMarkdown() },
         MenuItem("ic_clock", "Timestamp (org-mode)") { insertOrgTimestamp() },
         MenuItem("ic_terminal", "Spawn Claude session") { showSpawnMenu() },
@@ -327,11 +326,11 @@ class AssistActivity : Activity() {
         deliverText(text, "Dictated text")
     }
 
-    // Inactive org-mode timestamp for "now", e.g. [2026-10-01 15:51] --
+    // Inactive org-mode timestamp for "now", e.g. [2026-10-01 Thu 15:51] --
     // inserted into the field that was focused when this overlay opened
     // (capturedTarget), or just left on the clipboard if there's none.
     private fun insertOrgTimestamp() {
-        val stamp = java.text.SimpleDateFormat("'['yyyy-MM-dd HH:mm']'", java.util.Locale.US).format(java.util.Date())
+        val stamp = java.text.SimpleDateFormat("'['yyyy-MM-dd EEE HH:mm']'", java.util.Locale.US).format(java.util.Date())
         deliverText(stamp, "Org timestamp")
     }
 
