@@ -265,26 +265,11 @@ service supervisor; there's no way for a separate app like Dictate to
 trigger that the same way. Left as a Termux-only shortcut if still
 needed.
 
-## Read Aloud: the second app hanging off this menu
+## Read Aloud (removed 2026-10-27)
 
-`actions` gained a second entry (2026-09-12): "Read Aloud", which reads
-whatever app was in the foreground aloud. It lives in its own separate
-repo, [read-aloud-android](https://github.com/baleti/read-aloud-android)
-— that project's scope (a per-app accessibility profile system, gesture-
-driving, its own TTS pipeline) is wide enough to justify a repo of its
-own, this app just needed to stay the trigger since it already owns the
-Digital Assistant slot.
-
-`readAloud()` sends an **explicit** broadcast
-(`Intent(ACTION).setPackage("dev.local.readaloud")`) rather than a plain
-`sendBroadcast(Intent(ACTION))` — confirmed live that the implicit form
-never reaches a manifest-declared `<receiver>` in another app at all
-(Android 8+ restricts implicit broadcasts to static receivers), with no
-error or log to point at why. Unlike `startDictating()`'s
-`finishWithResult()`, this needs no retry-delay loop of its own after
-`finish()` — read-aloud-android's own accessibility service already
-retries internally while waiting for window focus to return here, so one
-short fixed delay before sending the broadcast is enough.
+The "Read Aloud" menu entry (an explicit broadcast to read-aloud-android's
+READ_CURRENT_SCREEN) was removed: screen-reading was unreliable. Reading now
+happens only via Share -> Read Aloud. Recover the old code from git history.
 
 ## Quick Settings tile
 

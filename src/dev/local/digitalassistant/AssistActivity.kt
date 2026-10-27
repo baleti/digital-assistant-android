@@ -211,32 +211,6 @@ class AssistActivity : Activity() {
         }.apply { isDaemon = true; name = "SpawnSession"; start() }
     }
 
-    // -------------------------------------------------------- read aloud
-
-    // Read Aloud lives in its own separate app/repo (read-aloud-android,
-    // added 2026-09-12) rather than being folded into this one -- its
-    // scope (a per-app accessibility profile system, gesture-driving,
-    // its own TTS pipeline) is wide enough to justify a repo of its own,
-    // this app just needs to be the trigger since it already owns the
-    // long-press-power slot. The Intent's package MUST be set explicitly:
-    // confirmed live 2026-09-12 that a plain implicit sendBroadcast()
-    // never reaches a manifest-declared receiver in another app at all
-    // (Android 8+ restricts implicit broadcasts to static receivers) --
-    // this silently did nothing the first time it was tried, no error,
-    // no log, just no effect.
-    //
-    // No retry-delay loop the way finishWithResult()'s tryInsert needs
-    // below: read-aloud-android's own accessibility service already
-    // retries internally while waiting for window focus to return here.
-    private fun readAloud() {
-        finish()
-        mainHandler.postDelayed({
-            sendBroadcast(
-                Intent("dev.local.readaloud.action.READ_CURRENT_SCREEN").setPackage("dev.local.readaloud"),
-            )
-        }, 300)
-    }
-
     // ------------------------------------------------------------ dictate
 
     private fun startDictating() {
